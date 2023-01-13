@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+.container-bg{
+  background-color: lightblue;
+  height: 100vh;
+}
+.square{
+  height: 100%;
+  border: 1px solid red;
+}
+.btn-remove{
+  border: none;
+  background: none;
+}

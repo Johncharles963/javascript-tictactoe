@@ -3,6 +3,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Image from 'react-bootstrap/Image'
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 
 const Play = () => {
@@ -10,14 +11,15 @@ const Play = () => {
     const [cpuLetter, setCpuLetter] = useState('o')
     const [userLetter, setUserLetter] = useState('x')
     const [gameOver, setGameOver] = useState(false)
+    const [paused, setPaused] = useState(false)
     const [aiTurn, setAiTurn] = useState(false)
     const [message, setMessage] = useState('')
+    const navigate = useNavigate();
 
     useEffect(() => {
-        addItemsToArray()
+        addItemsToArray();
     }, []);
-
-    const unbeatableAI = () => { 
+    const unbeatableAI = () => {
         let possibleMoves = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6,], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]]
         if (checkIfGameOver(possibleMoves, 'player')) {
             setGameOver(true)
@@ -27,19 +29,19 @@ const Play = () => {
                 if (winOrBlock(possibleMoves, 'win')) {
                 }
                 else if (winOrBlock(possibleMoves, 'block')) {
-        
+
                 }
                 else {
                     makeRandomMove()
                 }
-    
+
                 if (checkIfGameOver(possibleMoves, 'cpu')) {
                     setGameOver(true)
                 }
                 setAiTurn(false)
             }, 400);
         }
-        
+
     }
     const checkIfGameOver = (incomingArr, player) => {
         let boardFull = true
@@ -55,17 +57,14 @@ const Play = () => {
             else {
                 count = arr.filter(letter => letter == userLetter).length
             }
-            if (count === 3)
-            {
-                if(player !== 'cpu')
-                {
+            if (count === 3) {
+                if (player !== 'cpu') {
                     setMessage('You won!')
                 }
                 return true
             }
         }
-        if (boardFull)
-        {
+        if (boardFull) {
             setMessage('Its a draw!')
             return true
         }
@@ -143,32 +142,44 @@ const Play = () => {
         setGameSquares(arr)
     }
     const squareClicked = (index) => {
-        if(!gameOver && !aiTurn){
-        let arr = [...gameSquares]
-        if (arr[index].value === userLetter) {
-        }
-        else if (arr[index].value === cpuLetter) {
-        }
-        else {
-            if (userLetter === 'x')
-                arr[index].img = 'letterX.png'
-            else {
-                arr[index].img = 'letterO.png'
+        if (!gameOver && !aiTurn) {
+            let arr = [...gameSquares]
+            if (arr[index].value === userLetter) {
             }
-            arr[index].value = userLetter
-            setGameSquares(arr)
-            setAiTurn(true)
-            unbeatableAI()
+            else if (arr[index].value === cpuLetter) {
+            }
+            else {
+                if (userLetter === 'x')
+                    arr[index].img = 'letterX.png'
+                else {
+                    arr[index].img = 'letterO.png'
+                }
+                arr[index].value = userLetter
+                setGameSquares(arr)
+                setAiTurn(true)
+                unbeatableAI()
+            }
         }
     }
-    }
-    const playAgain = () =>{
-       addItemsToArray()
-       setGameOver(false)
-       setAiTurn(false)
-    }
-    const exit = () =>{
+    const playAgain = () => {
+        addItemsToArray()
         setGameOver(false)
+        setAiTurn(false)
+        setPaused(false)
+    }
+    const unPaused = () => {
+        setPaused(false)
+        setGameOver(false)
+    }
+    const exit = () => {
+        navigate("/");
+    }
+    const pauseGame = () => {
+        if(!gameOver){
+            setMessage('Paused')
+            setGameOver(true)
+            setPaused(true)
+        }
     }
     if (gameSquares) {
         let arr = gameSquares
@@ -181,22 +192,31 @@ const Play = () => {
     return (
         <div className=''>
             {gameOver &&
-            <Row className='mx-auto popup'>
-                <Col xs={12} className='my-auto'>
-                <h1 >{message}</h1>
-                </Col>
-                <Col className='my-auto'>
-                <button onClick={()=>{playAgain()}} className='play-btn fs-1'>Play Again</button>
-                </Col>
-                <Col className='my-auto'>
-                <button onClick={()=>{exit()}} className='play-btn fs-1'>Exit</button>
-                </Col>
-            </Row>
+                <Row className='mx-auto popup'>
+                    <Col xs={12} className='my-auto'>
+                        <h1 >{message}</h1>
+                    </Col>
+                    <Col className='my-auto'>
+                        <button onClick={() => { playAgain() }} className='play-btn fs-1'>Play Again</button>
+                    </Col>
+                    {paused &&
+                        <Col className='my-auto'>
+                            <button onClick={() => { unPaused() }} className='play-btn fs-1'>Continue</button>
+                        </Col>
+                    }
+                    <Col className='my-auto'>
+                        <button onClick={() => { exit() }} className='play-btn fs-1'>Exit</button>
+                    </Col>
+                </Row>
             }
             <Row className='bg-white mx-auto board-container'>
                 {gameSquares &&
                     gameSquares.map(u => { return u.button })
                 }
+            </Row>
+            <Row className='mx-auto mt-2'>
+                <Col xs={4} className='fs-2 mx-auto text-end'><h2 className='point' onClick={()=>{pauseGame()}}>Pause</h2></Col>
+                <Col xs={4} className='fs-2 mx-auto'><h2 className='point' onClick={()=>{exit()}}>Home</h2></Col>
             </Row>
         </div>
     )

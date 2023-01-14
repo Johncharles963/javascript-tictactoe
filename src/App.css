@@ -61,12 +61,15 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 50%;
   background-color: #61dafb;
   height: 200px;
   text-align: center;
+  opacity: .9;
 }
 .play-btn{
   background: none;
   border: none;
+}
+.point{
+  cursor: pointer;
 }

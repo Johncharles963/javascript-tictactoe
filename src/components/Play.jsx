@@ -9,37 +9,84 @@ const Play = () => {
     const [gameSquares, setGameSquares] = useState()
     const [cpuLetter, setCpuLetter] = useState('o')
     const [userLetter, setUserLetter] = useState('x')
-
+    const [gameOver, setGameOver] = useState(false)
+    const [aiTurn, setAiTurn] = useState(false)
+    const [message, setMessage] = useState('')
 
     useEffect(() => {
         addItemsToArray()
     }, []);
 
-    const unbeatableAI = () => {
+    const unbeatableAI = () => { 
         let possibleMoves = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6,], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]]
-        if (winOrBlock(possibleMoves, 'win')) {
-
-        }
-        else if (winOrBlock(possibleMoves, 'block')) {
-
+        if (checkIfGameOver(possibleMoves, 'player')) {
+            setGameOver(true)
         }
         else {
-            makeRandomMove()
+            setTimeout(() => {
+                if (winOrBlock(possibleMoves, 'win')) {
+                }
+                else if (winOrBlock(possibleMoves, 'block')) {
+        
+                }
+                else {
+                    makeRandomMove()
+                }
+    
+                if (checkIfGameOver(possibleMoves, 'cpu')) {
+                    setGameOver(true)
+                }
+                setAiTurn(false)
+            }, 400);
         }
-
+        
+    }
+    const checkIfGameOver = (incomingArr, player) => {
+        let boardFull = true
+        for (let i = 0; i < 8; i++) {
+            let count = []
+            let arr = [gameSquares[incomingArr[i][0]].value, gameSquares[incomingArr[i][1]].value, gameSquares[incomingArr[i][2]].value]
+            if (arr.includes('')) {
+                boardFull = false
+            }
+            if (player === 'cpu') {
+                count = arr.filter(letter => letter == cpuLetter).length
+            }
+            else {
+                count = arr.filter(letter => letter == userLetter).length
+            }
+            if (count === 3)
+            {
+                if(player !== 'cpu')
+                {
+                    setMessage('You won!')
+                }
+                return true
+            }
+        }
+        if (boardFull)
+        {
+            setMessage('Its a draw!')
+            return true
+        }
+        else
+            return false
     }
     const winOrBlock = (incomingArr, moveType) => {
         for (let i = 0; i < 8; i++) {
             let count = []
             let arr = [gameSquares[incomingArr[i][0]].value, gameSquares[incomingArr[i][1]].value, gameSquares[incomingArr[i][2]].value]
-            if (moveType === 'win')
-                count = arr.filter(letter => letter == cpuLetter).length;
-            else
-                count = arr.filter(letter => letter == userLetter).length;
-            console.log(count)
+            if (moveType === 'win') {
+                count = arr.filter(letter => letter == cpuLetter).length
+            }
+            else {
+                count = arr.filter(letter => letter == userLetter).length
+            }
             if (count === 2 && arr.includes('')) {
+                if (moveType === 'win')
+                    setMessage('Computer wins!')
+                else console.log('block')
                 for (let j = 0; j < 3; j++) {
-                    console.log(gameSquares[incomingArr[i][j]])
                     if (gameSquares[incomingArr[i][j]].value === '') {
                         let tempArr = [...gameSquares]
                         tempArr[incomingArr[i][j]].value = cpuLetter
@@ -62,7 +109,6 @@ const Play = () => {
         let openMoves = []
         let cornersAndCenter = []
         let randomMove = 0
-        console.log('open Moves: ' + openMoves)
         arr.forEach((element, index) => {
             if (element.value === '') {
                 if (index % 2 == 0)
@@ -71,18 +117,22 @@ const Play = () => {
                     openMoves.push(index)
             }
         });
-        if (cornersAndCenter) {
-            randomMove = Math.floor(Math.random() * cornersAndCenter.length)
+        if (cornersAndCenter.length !== 0) {
+            let rnd = Math.floor(Math.random() * cornersAndCenter.length)
+            randomMove = cornersAndCenter[rnd]
         }
         else {
-            randomMove = Math.floor(Math.random() * openMoves.length)
+            let rnd = Math.floor(Math.random() * openMoves.length)
+            randomMove = openMoves[rnd]
         }
+        console.log(arr, randomMove)
         arr[randomMove].value = cpuLetter
         if (cpuLetter === 'x')
             arr[randomMove].img = 'letterX.png'
         else {
             arr[randomMove].img = 'letterO.png'
         }
+        arr[randomMove].value = cpuLetter
         setGameSquares(arr)
     }
     const addItemsToArray = () => {
@@ -93,12 +143,11 @@ const Play = () => {
         setGameSquares(arr)
     }
     const squareClicked = (index) => {
+        if(!gameOver && !aiTurn){
         let arr = [...gameSquares]
         if (arr[index].value === userLetter) {
-            alert('You have this')
         }
         else if (arr[index].value === cpuLetter) {
-            alert('Enemy has this')
         }
         else {
             if (userLetter === 'x')
@@ -108,8 +157,18 @@ const Play = () => {
             }
             arr[index].value = userLetter
             setGameSquares(arr)
+            setAiTurn(true)
+            unbeatableAI()
         }
-        unbeatableAI()
+    }
+    }
+    const playAgain = () =>{
+       addItemsToArray()
+       setGameOver(false)
+       setAiTurn(false)
+    }
+    const exit = () =>{
+        setGameOver(false)
     }
     if (gameSquares) {
         let arr = gameSquares
@@ -120,13 +179,26 @@ const Play = () => {
             setGameSquares(arr)
     }
     return (
-        <Container className='bg-white mx-auto align-self-center' style={{ width: "700px" }}>
-            <Row>
+        <div className=''>
+            {gameOver &&
+            <Row className='mx-auto popup'>
+                <Col xs={12} className='my-auto'>
+                <h1 >{message}</h1>
+                </Col>
+                <Col className='my-auto'>
+                <button onClick={()=>{playAgain()}} className='play-btn fs-1'>Play Again</button>
+                </Col>
+                <Col className='my-auto'>
+                <button onClick={()=>{exit()}} className='play-btn fs-1'>Exit</button>
+                </Col>
+            </Row>
+            }
+            <Row className='bg-white mx-auto board-container'>
                 {gameSquares &&
                     gameSquares.map(u => { return u.button })
                 }
             </Row>
-        </Container>
+        </div>
     )
 }
 export default Play

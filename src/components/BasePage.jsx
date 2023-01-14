@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom'
 
 const BasePage = () => {
     return (
-        <Container className='container-bg d-flex' fluid >
+        <Container className='container-bg d-flex flex-column justify-content-center' fluid >
             <Outlet />
         </Container >
     )

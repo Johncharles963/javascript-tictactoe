@@ -16,18 +16,31 @@ const Play = () => {
     }, []);
 
     const unbeatableAI = () => {
-        makeWinningMove([0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6,], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8])
+        let possibleMoves = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6,], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]]
+        if (winOrBlock(possibleMoves, 'win')) {
+
+        }
+        else if (winOrBlock(possibleMoves, 'block')) {
+
+        }
+        else {
+            makeRandomMove()
+        }
+
     }
-    const makeWinningMove = (...incomingArr) => {
+    const winOrBlock = (incomingArr, moveType) => {
         for (let i = 0; i < 8; i++) {
+            let count = []
             let arr = [gameSquares[incomingArr[i][0]].value, gameSquares[incomingArr[i][1]].value, gameSquares[incomingArr[i][2]].value]
-            let count = arr.filter(x => x == cpuLetter).length;
+            if (moveType === 'win')
+                count = arr.filter(letter => letter == cpuLetter).length;
+            else
+                count = arr.filter(letter => letter == userLetter).length;
             console.log(count)
             if (count === 2 && arr.includes('')) {
                 for (let j = 0; j < 3; j++) {
                     console.log(gameSquares[incomingArr[i][j]])
                     if (gameSquares[incomingArr[i][j]].value === '') {
-                        console.log('winning: ' + gameSquares[incomingArr[i][j]])
                         let tempArr = [...gameSquares]
                         tempArr[incomingArr[i][j]].value = cpuLetter
                         if (cpuLetter === 'x')
@@ -42,13 +55,35 @@ const Play = () => {
                 return true
             }
         }
-
-    }
-    const blockWinningMove = () => {
-
+        return false
     }
     const makeRandomMove = () => {
-
+        let arr = [...gameSquares]
+        let openMoves = []
+        let cornersAndCenter = []
+        let randomMove = 0
+        console.log('open Moves: ' + openMoves)
+        arr.forEach((element, index) => {
+            if (element.value === '') {
+                if (index % 2 == 0)
+                    cornersAndCenter.push(index)
+                else
+                    openMoves.push(index)
+            }
+        });
+        if (cornersAndCenter) {
+            randomMove = Math.floor(Math.random() * cornersAndCenter.length)
+        }
+        else {
+            randomMove = Math.floor(Math.random() * openMoves.length)
+        }
+        arr[randomMove].value = cpuLetter
+        if (cpuLetter === 'x')
+            arr[randomMove].img = 'letterX.png'
+        else {
+            arr[randomMove].img = 'letterO.png'
+        }
+        setGameSquares(arr)
     }
     const addItemsToArray = () => {
         let arr = []

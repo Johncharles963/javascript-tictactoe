@@ -14,17 +14,38 @@ const Play = () => {
     const [paused, setPaused] = useState(false)
     const [aiTurn, setAiTurn] = useState(false)
     const [message, setMessage] = useState('')
+    const [cpuFirst, setCpuFirst] = useState(false)
     const navigate = useNavigate();
+    const [turn, setTurn] = useState(0)
 
     useEffect(() => {
         addItemsToArray();
+        changeFirst()
     }, []);
+
+    const changeFirst = () =>{
+        setCpuFirst(!cpuFirst)
+        if(!cpuFirst){
+            setAiTurn(true)
+            setCpuLetter('x')
+            setUserLetter('o')
+        }
+        else{
+            setAiTurn(false)
+            setCpuLetter('o')
+            setUserLetter('x')
+        }
+        setTurn(0)
+    }
     const unbeatableAI = () => {
+        setTurn(turn + 1)
+        console.log(turn)
+        console.log('hit')
         let possibleMoves = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6,], [1, 4, 7], [2, 5, 8], [2, 4, 6], [0, 4, 8]]
         if (checkIfGameOver(possibleMoves, 'player')) {
             setGameOver(true)
         }
-        else {
+        else  {
             setTimeout(() => {
                 if (winOrBlock(possibleMoves, 'win')) {
                 }
@@ -41,7 +62,6 @@ const Play = () => {
                 setAiTurn(false)
             }, 400);
         }
-
     }
     const checkIfGameOver = (incomingArr, player) => {
         let boardFull = true
@@ -124,7 +144,6 @@ const Play = () => {
             let rnd = Math.floor(Math.random() * openMoves.length)
             randomMove = openMoves[rnd]
         }
-        console.log(arr, randomMove)
         arr[randomMove].value = cpuLetter
         if (cpuLetter === 'x')
             arr[randomMove].img = 'letterX.png'
@@ -164,8 +183,8 @@ const Play = () => {
     const playAgain = () => {
         addItemsToArray()
         setGameOver(false)
-        setAiTurn(false)
         setPaused(false)
+        changeFirst()
     }
     const unPaused = () => {
         setPaused(false)
@@ -189,8 +208,12 @@ const Play = () => {
         if (gameSquares !== arr)
             setGameSquares(arr)
     }
+    if(turn === 0 && aiTurn){
+        unbeatableAI()
+    }
     return (
         <div className=''>
+            
             {gameOver &&
                 <Row className='mx-auto popup'>
                     <Col xs={12} className='my-auto'>
@@ -209,6 +232,9 @@ const Play = () => {
                     </Col>
                 </Row>
             }
+            <Row className='mx-auto mt-2'>
+                <Col className='fs-2 mx-auto text-center'><h2 className='point' onClick={()=>{pauseGame()}}>{aiTurn ? <>Computer Turn</> : <>Your turn</>}</h2></Col>
+            </Row>
             <Row className='bg-white mx-auto board-container'>
                 {gameSquares &&
                     gameSquares.map(u => { return u.button })

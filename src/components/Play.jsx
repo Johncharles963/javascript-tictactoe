@@ -184,7 +184,7 @@ const Play = () => {
     if (gameSquares) {
         let arr = gameSquares
         for (let i = 0; i < 9; i++) {
-            arr[i].button = (<Col key={i} xs={4} className='square'><button className='btn-remove' onClick={() => { squareClicked(i) }}><Image fluid src={gameSquares[i].img} /></button></Col>)
+            arr[i].button = (<Col key={i} xs={4} className='square'><button className='btn-remove' onClick={() => { squareClicked(i) }}><Image draggable={false} fluid src={gameSquares[i].img} /></button></Col>)
         }
         if (gameSquares !== arr)
             setGameSquares(arr)
